@@ -107,12 +107,9 @@ As imagens estão organizadas na pasta `imagens` do repositório.
 
 ### Capturas do Google Earth
 
-![Captura 1](imagens/captura-1.png)
-
-![Captura 2](imagens/captura-2.png)
-
 ![Captura 3](imagens/captura-3.png)
-
+![Captura 2](imagens/captura-2.png)
+![Captura 1](imagens/captura-1.png)
 ![Captura 4](imagens/captura-4.png)
 
 ## 7. Conclusão
