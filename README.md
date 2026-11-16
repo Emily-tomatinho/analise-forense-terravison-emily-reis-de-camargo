@@ -1,126 +1,61 @@
-# Análise Forense e Computação Gráfica
-## Tema: Cadeias Montanhosas e Relevo Acentuado
+# TERRAVISION | Explorador geográfico da Serra da Prata
 
-**Estudante:** Emily Reis de Camargo  
-**Turma:** 3º D - DS  
-**Disciplinas:** Ciências de Dados e Computação Gráfica
+Aplicativo desktop em Python, com janela própria. Ele não abre o Google Chrome.
 
----
+## Como abrir no Windows sem usar arquivo BAT
 
-## 1. Sobre o projeto
+1. Extraia a pasta `TERRAVISION` inteira para um local fácil de encontrar, como Downloads.
+2. Abra a pasta `TERRAVISION` no Explorador de Arquivos.
+3. Clique na barra de endereço da pasta, digite `powershell` e pressione Enter.
+4. Na janela azul do PowerShell, digite o comando abaixo e pressione Enter:
 
-Este trabalho tem como objetivo estudar como sistemas de visualização, como o Google Earth, representam terrenos com grandes variações de altitude.
+   ```powershell
+   python -m pip install -r requirements.txt
+   ```
 
-O tema escolhido foi cadeias montanhosas e relevo acentuado, com observação da região do Morro do Getúlio, no Paraná.
+   Esse comando instala as bibliotecas necessárias (PySide6 e NumPy). Na primeira vez, precisa de internet.
 
-O estudo aborda como a altitude da câmera influencia o nível de detalhes das imagens e como as sombras e a modelagem 3D ajudam na representação das montanhas.
+5. Quando a instalação terminar, digite:
 
-## 2. Desenvolvimento em Python
+   ```powershell
+   python app.py
+   ```
 
-No arquivo `script.py`, foi criada a função `carregar_camada_satelite(lista_altitudes)`.
+   Esse comando abre o TERRAVISION em uma janela própria.
 
-A função recebe uma lista com pelo menos cinco valores de altitude, em metros, e utiliza estruturas condicionais (`if`, `elif` e `else`) para selecionar o nível de resolução.
+**Importante:** este pacote não contém instalador `.exe` nem arquivo `.bat`. Não é necessário desativar o Controle de Aplicativo Inteligente do Windows. Se o Windows ou o Python mostrar um erro, pare e copie a mensagem para receber ajuda. Não altere as configurações de segurança do notebook.
 
-A classificação funciona da seguinte maneira:
+## Recursos
+- Visualização 2D com imagem de satélite (Esri).
+- Modo de relevo sombreado (OpenTopoMap) e mapa combinado com hillshade.
+- Modo 3D com malha de elevação local derivada da matriz TOPODATA/INPE que acompanha o projeto.
+- Botões de zoom + e -, retorno ao enquadramento inicial, indicador de altitude e controles de iluminação/malha/vista.
+- Navegação 2D por arraste e 3D por arraste do mouse e roda.
 
-| Altitude da câmera | Resolução | Representação |
-|---|---|---|
-| Acima de 10.000 m | Baixa | Visão geral das cadeias montanhosas |
-| Entre 1.000 m e 10.000 m | Média | Picos, vales e encostas |
-| Abaixo de 1.000 m | Alta | Rochas, pequenas encostas e sombras |
+## Controles
+- `+` / `-`: aproximar e afastar.
+- Arrastar no mapa 2D: mover a região.
+- Arrastar no modo 3D: orbitar o terreno.
+- Roda do mouse no 3D: aproximar/afastar.
+- Painel esquerdo: Satélite 2D, Terreno 3D, Relevo sombreado, Mapa + relevo, iluminação, malha, vista superior e inclinada.
 
-### Valores utilizados no teste
+## Dados, escala e limitações
+- Centro aproximado: Torre da Prata, latitude -25.6271, longitude -48.6885.
+- O mapa 2D usa serviços de mapas online e depende de internet. As atribuições dos provedores aparecem na interface.
+- O modo 3D usa uma matriz de elevação local recortada do arquivo TOPODATA processado que acompanha o projeto. Não é um modelo fotogramétrico nem uma textura de satélite 3D.
+- A extensão de 4,92 km é uma referência de enquadramento geográfico, não um círculo ou uma linha desenhada no mapa. O recorte do modelo de elevação foi preparado para abranger aproximadamente 4,9 km para cada lado do centro.
+- O indicador de 1.000 a 10.000 m é uma escala didática aproximada de visualização, não uma medição GPS/barométrica nem uma escala cartográfica rigorosa.
+- A visualização 3D é um modelo digital de elevação colorido. Não é uma cópia integral do Google Earth e não possui imagens oblíquas reais de satélite.
 
-Foram utilizados cinco valores para testar o funcionamento do programa:
+## Estrutura
+- `app.py`: janela desktop Python.
+- `interface.html`: interface de mapas 2D e cena 3D.
+- `dados/terreno_recorte.json`: grade de elevação usada no 3D.
+- `dados/terreno_400.npy`: matriz original processada.
+- `preparar_terreno.py`: rotina anterior de preparação do DEM (requer GeoTIFF original).
 
-- 25.000 metros: baixa resolução.
-- 15.000 metros: baixa resolução.
-- 8.000 metros: média resolução.
-- 3.500 metros: média resolução.
-- 500 metros: alta resolução.
+## Fonte de elevação
+TOPODATA / INPE: https://www.dsr.inpe.br/topodata/
 
-O código utiliza uma estrutura de repetição `for` para percorrer cada altitude e verificar em qual condição ela se encaixa.
 
-A ideia é que, quando a câmera está distante do terreno, não seja necessário apresentar todos os detalhes. Conforme ela se aproxima, o nível de detalhamento pode aumentar.
-
-**Observação:** o código desenvolvido é uma simulação da escolha do nível de resolução. Ele não baixa imagens de satélite nem realiza renderização 3D real.
-
-## 3. Processamento e tratamento de imagens
-
-Na representação de cadeias montanhosas, um dos desafios é unir diferentes imagens de satélite para formar uma representação contínua do terreno.
-
-Esse processo é conhecido como *stitching* (costura de imagens).
-
-Durante a união das imagens, podem aparecer diferenças de cores, iluminação, contraste e textura. Isso pode acontecer porque as imagens foram capturadas em momentos ou condições diferentes.
-
-Para melhorar a continuidade visual, é necessário ajustar cores, brilho e contraste, além de alinhar corretamente as imagens para evitar divisões visíveis.
-
-No relevo montanhoso, as sombras também representam um desafio. Dependendo da posição da iluminação, algumas partes das encostas ficam mais escuras, podendo esconder detalhes do terreno.
-
-Por outro lado, essas sombras ajudam a perceber as diferenças de altura e a profundidade das montanhas.
-
-## 4. Sombras e modelagem 3D
-
-A modelagem 3D permite representar o terreno considerando três dimensões: largura, comprimento e altura.
-
-Para isso, podem ser utilizados dados de elevação, que indicam as diferentes alturas de cada região. Esses valores ajudam a formar uma representação com picos, encostas e vales.
-
-As imagens de satélite podem ser aplicadas sobre essa superfície como texturas, deixando a representação mais próxima da aparência real do terreno.
-
-A iluminação também é importante. Quando a luz incide sobre as montanhas, algumas regiões ficam iluminadas enquanto outras permanecem na sombra.
-
-Isso ajuda o usuário a identificar as inclinações e compreender melhor o formato do relevo.
-
-No caso das cadeias montanhosas, as sombras podem destacar a profundidade dos vales e as diferenças de altura entre os picos.
-
-## 5. Leis da Gestalt na interface do Google Earth
-
-A Gestalt estuda como o cérebro humano organiza e interpreta os elementos visuais.
-
-Duas leis que podem ser observadas na interface do Google Earth são:
-
-### 5.1 Figura-Fundo
-
-Essa lei acontece quando conseguimos diferenciar o elemento principal dos elementos que estão ao seu redor.
-
-No Google Earth, o terreno ocupa a maior parte da tela e representa o foco da visualização. Os menus, ferramentas e painéis ficam separados visualmente, permitindo que o usuário concentre sua atenção no mapa.
-
-### 5.2 Proximidade
-
-A lei da proximidade explica que elementos próximos uns dos outros tendem a ser percebidos como parte de um mesmo grupo.
-
-Na interface do Google Earth, as ferramentas de navegação aparecem agrupadas na barra superior. Além disso, as informações sobre um local ficam reunidas em um painel.
-
-Essa organização facilita a identificação das ferramentas e torna a navegação mais intuitiva.
-
-### 5.3 Como o design ajuda o usuário?
-
-A barra de pesquisa permite encontrar rapidamente uma região específica. Os controles de zoom ajudam a aproximar ou afastar a visualização, enquanto a organização das ferramentas facilita o acesso às funções disponíveis.
-
-Dessa forma, o design contribui para que o usuário consiga explorar o relevo sem precisar procurar cada ferramenta separadamente.
-
-## 6. Imagens e evidências
-
-Foram realizadas capturas de tela no Google Earth para observar a região montanhosa escolhida e registrar diferentes perspectivas do terreno.
-
-As imagens estão organizadas na pasta `imagens` do repositório.
-
-### Capturas do Google Earth
-
-![Captura 3](imagens/captura-3.png)
-![Captura 2](imagens/captura-2.png)
-![Captura 1](imagens/captura-1.png)
-![Captura 4](imagens/captura-4.png)
-
-## 7. Conclusão
-
-Com este trabalho, foi possível compreender como a altitude influencia a seleção do nível de detalhes em sistemas de visualização geográfica.
-
-Também foi possível estudar os desafios de unir imagens de satélite, ajustar suas características visuais e representar terrenos montanhosos utilizando iluminação, sombras e modelagem 3D.
-
-A atividade permitiu relacionar os conceitos de Ciências de Dados e Computação Gráfica com a representação de terrenos reais, utilizando o Morro do Getúlio como referência de observação.
-
-## 8. Referências
-
-- Google Earth: https://earth.google.com/web/
-- Instituto Água e Terra (IAT): Plano de Uso Público Emergencial do Parque Estadual Pico Paraná, 2025. https://www.iat.pr.gov.br/
+Correção de carregamento: os dados locais de elevação são incorporados à interface pelo aplicativo Python, evitando falha ao buscar o JSON por caminho relativo.
