@@ -1,5 +1,5 @@
-# TERRAVISION
-## Relatório Técnico de Análise Forense e Computação Gráfica
+# Cadeias Montanhosas e Relevo Acentuado – Sombra e Modelagem 3D
+# Relatório Técnico de Análise Forense e Computação Gráfica
 
 **COLÉGIO ESTADUAL RODOLPHO ZANINELLI**  
 **Curso:** Ensino Médio Técnico em Desenvolvimento de Sistemas  
@@ -7,7 +7,6 @@
 **Estudante:** Emily Reis de Camargo  
 **Professora:** Angélica Neckel  
 **Disciplinas:** Ciências de Dados e Computação Gráfica  
-**Tema designado:** Cadeias Montanhosas e Relevo Acentuado – Sombra e Modelagem 3D  
 
 ---
 
