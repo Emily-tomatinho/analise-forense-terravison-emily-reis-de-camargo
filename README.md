@@ -1,61 +1,186 @@
-# TERRAVISION | Explorador geográfico da Serra da Prata
+# TERRAVISION
+## Relatório Técnico de Análise Forense e Computação Gráfica
 
-Aplicativo desktop em Python, com janela própria. Ele não abre o Google Chrome.
+**COLÉGIO ESTADUAL RODOLPHO ZANINELLI**  
+**Curso:** Ensino Médio Técnico em Desenvolvimento de Sistemas  
+**Turma:** 3º D – Matutino  
+**Estudante:** Emily Reis de Camargo  
+**Professora:** Angélica Neckel  
+**Disciplinas:** Ciências de Dados e Computação Gráfica  
+**Tema designado:** Cadeias Montanhosas e Relevo Acentuado – Sombra e Modelagem 3D  
 
-## Como abrir no Windows sem usar arquivo BAT
+---
 
-1. Extraia a pasta `TERRAVISION` inteira para um local fácil de encontrar, como Downloads.
-2. Abra a pasta `TERRAVISION` no Explorador de Arquivos.
-3. Clique na barra de endereço da pasta, digite `powershell` e pressione Enter.
-4. Na janela azul do PowerShell, digite o comando abaixo e pressione Enter:
+## 1. APRESENTAÇÃO DO PROJETO
 
-   ```powershell
-   python -m pip install -r requirements.txt
-   ```
+O TERRAVISION é um projeto desenvolvido em Python com o objetivo de estudar a representação digital de terrenos montanhosos, utilizando dados de elevação e recursos de computação gráfica.
 
-   Esse comando instala as bibliotecas necessárias (PySide6 e NumPy). Na primeira vez, precisa de internet.
+A área escolhida para o estudo está localizada na região da Serra da Prata, no litoral do Paraná, nas proximidades da Torre da Prata.
 
-5. Quando a instalação terminar, digite:
+O trabalho busca demonstrar como informações geográficas podem ser processadas e transformadas em representações visuais, permitindo observar características como picos, encostas, vales e diferenças de altitude.
 
-   ```powershell
-   python app.py
-   ```
+A proposta também estabelece uma relação com sistemas de visualização geográfica, como o Google Earth, considerando aspectos de organização de dados, níveis de detalhe, navegação e representação tridimensional.
 
-   Esse comando abre o TERRAVISION em uma janela própria.
+## 2. OBJETIVOS
 
-**Importante:** este pacote não contém instalador `.exe` nem arquivo `.bat`. Não é necessário desativar o Controle de Aplicativo Inteligente do Windows. Se o Windows ou o Python mostrar um erro, pare e copie a mensagem para receber ajuda. Não altere as configurações de segurança do notebook.
+### 2.1 Objetivo geral
 
-## Recursos
-- Visualização 2D com imagem de satélite (Esri).
-- Modo de relevo sombreado (OpenTopoMap) e mapa combinado com hillshade.
-- Modo 3D com malha de elevação local derivada da matriz TOPODATA/INPE que acompanha o projeto.
-- Botões de zoom + e -, retorno ao enquadramento inicial, indicador de altitude e controles de iluminação/malha/vista.
-- Navegação 2D por arraste e 3D por arraste do mouse e roda.
+Analisar como dados de elevação podem ser utilizados para representar cadeias montanhosas e terrenos de relevo acentuado por meio de processamento de dados e modelagem tridimensional.
 
-## Controles
-- `+` / `-`: aproximar e afastar.
-- Arrastar no mapa 2D: mover a região.
-- Arrastar no modo 3D: orbitar o terreno.
-- Roda do mouse no 3D: aproximar/afastar.
-- Painel esquerdo: Satélite 2D, Terreno 3D, Relevo sombreado, Mapa + relevo, iluminação, malha, vista superior e inclinada.
+### 2.2 Objetivos específicos
 
-## Dados, escala e limitações
-- Centro aproximado: Torre da Prata, latitude -25.6271, longitude -48.6885.
-- O mapa 2D usa serviços de mapas online e depende de internet. As atribuições dos provedores aparecem na interface.
-- O modo 3D usa uma matriz de elevação local recortada do arquivo TOPODATA processado que acompanha o projeto. Não é um modelo fotogramétrico nem uma textura de satélite 3D.
-- A extensão de 4,92 km é uma referência de enquadramento geográfico, não um círculo ou uma linha desenhada no mapa. O recorte do modelo de elevação foi preparado para abranger aproximadamente 4,9 km para cada lado do centro.
-- O indicador de 1.000 a 10.000 m é uma escala didática aproximada de visualização, não uma medição GPS/barométrica nem uma escala cartográfica rigorosa.
-- A visualização 3D é um modelo digital de elevação colorido. Não é uma cópia integral do Google Earth e não possui imagens oblíquas reais de satélite.
+- Compreender a organização de dados geográficos em matrizes.
+- Aplicar estruturas condicionais e de repetição em Python.
+- Estudar o conceito de Level of Detail (LoD).
+- Utilizar dados de altitude na construção de uma superfície tridimensional.
+- Analisar a influência das cores, da iluminação e das sombras na interpretação do relevo.
+- Relacionar princípios de design e leis da Gestalt à interface de visualização.
 
-## Estrutura
-- `app.py`: janela desktop Python.
-- `interface.html`: interface de mapas 2D e cena 3D.
-- `dados/terreno_recorte.json`: grade de elevação usada no 3D.
-- `dados/terreno_400.npy`: matriz original processada.
-- `preparar_terreno.py`: rotina anterior de preparação do DEM (requer GeoTIFF original).
+## 3. DESENVOLVIMENTO E ORGANIZAÇÃO DOS DADOS
 
-## Fonte de elevação
-TOPODATA / INPE: https://www.dsr.inpe.br/topodata/
+### 3.1 Seleção do nível de detalhe (LoD)
 
+Em aplicações de visualização geográfica, a quantidade de detalhes exibidos pode variar conforme a distância ou altitude da câmera virtual.
 
-Correção de carregamento: os dados locais de elevação são incorporados à interface pelo aplicativo Python, evitando falha ao buscar o JSON por caminho relativo.
+Esse processo é conhecido como Level of Detail (LoD). Seu objetivo é evitar o processamento desnecessário de informações quando o usuário observa uma área muito extensa.
+
+No arquivo `script.py`, a função `carregar_camada_satelite(lista_altitudes)` utiliza estruturas condicionais para classificar a visualização de acordo com a altitude informada.
+
+| Altitude da câmera | Nível de detalhe | Elementos relacionados ao tema |
+|---|---|---|
+| Acima de 10.000 m | Baixa resolução | Visão geral das cadeias montanhosas |
+| Entre 1.000 m e 10.000 m | Média resolução | Picos, vales e encostas |
+| Abaixo de 1.000 m | Alta resolução | Detalhes do relevo e pequenas variações da superfície |
+
+A função utiliza `if`, `elif` e `else` para verificar as condições e um laço `for` para percorrer os valores de altitude.
+
+Essa implementação representa uma simulação didática da seleção de níveis de detalhe.
+
+### 3.2 Preparação dos dados de elevação
+
+Os dados de elevação são utilizados para representar as diferenças de altura existentes no terreno.
+
+O processamento descrito no projeto utiliza Python, NumPy e Rasterio para trabalhar com um arquivo geográfico no formato GeoTIFF.
+
+A partir dos dados originais, é possível selecionar uma área de interesse, realizar a reamostragem e organizar as altitudes em uma matriz numérica.
+
+Durante o processamento registrado, foram obtidos os seguintes resultados:
+
+| Característica | Resultado |
+|---|---|
+| Dimensões da matriz principal | 400 × 400 |
+| Tipo dos valores | float32 |
+| Altitude mínima registrada | Aproximadamente -0,25 m |
+| Altitude máxima registrada | Aproximadamente 1.452,46 m |
+
+Esses valores representam os dados da matriz processada e não devem ser interpretados como uma medição topográfica de precisão do ponto mais alto da região.
+
+### 3.3 Modelagem tridimensional
+
+Na representação tridimensional, os valores de altitude determinam a altura dos pontos que formam a superfície do terreno.
+
+A matriz de elevação funciona como base para a construção de uma malha, na qual as coordenadas horizontais representam a posição dos pontos e os valores numéricos determinam suas alturas.
+
+Essa organização permite visualizar diferenças entre áreas elevadas e regiões mais baixas, facilitando a interpretação de montanhas, encostas e vales.
+
+## 4. ETAPA 2 – COMPUTAÇÃO GRÁFICA E UX/UI
+
+### 4.1 Processamento e tratamento de imagem
+
+A representação de cadeias montanhosas apresenta desafios específicos para os sistemas de visualização geográfica.
+
+Um dos principais problemas é a uniformização das imagens. Fotografias de diferentes áreas podem apresentar variações de iluminação, contraste e tonalidade. Quando essas imagens são combinadas, as diferenças podem ficar perceptíveis na transição entre uma região e outra.
+
+Outro desafio está relacionado às sombras produzidas pelo relevo. Montanhas elevadas podem bloquear a iluminação em determinadas áreas, criando regiões mais escuras. Embora essas sombras contribuam para a percepção de profundidade, também podem dificultar a identificação de detalhes quando há pouco contraste.
+
+A textura também precisa acompanhar a geometria do terreno. Em uma representação tridimensional, a imagem aplicada à superfície deve respeitar as diferenças de inclinação e altura para evitar distorções visuais.
+
+No caso do TERRAVISION, os dados de elevação são utilizados para construir a superfície tridimensional. A representação por cores auxilia na diferenciação das altitudes, mas não substitui uma textura real de satélite nem um cálculo físico de iluminação e sombras.
+
+### 4.2 Leis da Gestalt
+
+As leis da Gestalt ajudam a compreender como os elementos visuais são organizados e percebidos pelo usuário.
+
+Neste projeto, dois princípios são especialmente relevantes:
+
+**Figura-Fundo**
+
+A região geográfica apresentada na tela deve ser o elemento de maior destaque. Os menus, botões e informações complementares precisam permanecer visualmente separados do terreno.
+
+Essa organização ajuda o usuário a manter a atenção na área analisada, sem confundir os controles da interface com os elementos do mapa.
+
+**Proximidade**
+
+Elementos que possuem funções relacionadas devem ficar próximos uns dos outros. Por exemplo, os controles de aproximação e afastamento podem ficar agrupados, enquanto as opções de visualização e informações de altitude podem ocupar áreas próprias da interface.
+
+Essa organização facilita a localização das ferramentas e torna a navegação mais intuitiva.
+
+### 4.3 Organização da interface e experiência do usuário
+
+Uma interface de visualização geográfica precisa permitir que o usuário compreenda rapidamente onde está observando e quais ferramentas pode utilizar.
+
+A aproximação e o afastamento da câmera são importantes para alternar entre a visão geral da cadeia montanhosa e a observação de detalhes locais.
+
+A separação entre os controles e a área de visualização também contribui para uma experiência mais organizada.
+
+A referência utilizada para essa proposta é a navegação do Google Earth, especialmente a mudança de escala e a possibilidade de observar o terreno em diferentes perspectivas.
+
+## 5. RELAÇÃO ENTRE SOMBRAS, ALTITUDE E RELEVO
+
+As sombras possuem papel importante na interpretação de terrenos montanhosos.
+
+Quando a luz atinge uma superfície irregular, as diferentes inclinações podem produzir áreas com níveis distintos de iluminação. Esse contraste ajuda a identificar elevações, depressões e mudanças na orientação das encostas.
+
+Na modelagem tridimensional, os valores de elevação permitem representar essas diferenças de altura.
+
+Dessa forma, a visualização do relevo não depende apenas das cores, mas também da geometria da superfície e da maneira como a iluminação é representada.
+
+## 6. TECNOLOGIAS E FERRAMENTAS UTILIZADAS
+
+| Tecnologia | Aplicação no projeto |
+|---|---|
+| Python | Linguagem principal de desenvolvimento |
+| NumPy | Organização e manipulação de matrizes numéricas |
+| Rasterio | Leitura e processamento de dados geográficos |
+| OpenGL | Recursos de renderização gráfica |
+| PySide6 | Construção da interface da aplicação |
+| GitHub | Versionamento e documentação do projeto |
+
+*Observação: a lista de bibliotecas deve ser conferida com os arquivos de dependências da versão final publicada.*
+
+## 7. EVIDÊNCIAS VISUAIS
+
+Nesta seção devem ser inseridas capturas de tela que demonstrem a área estudada e o desenvolvimento do projeto.
+
+**Figura 1 – Área de estudo no Google Earth**  
+Inserir uma captura de tela da região da Serra da Prata, mostrando o tema mapeado.
+
+**Figura 2 – Visualização do terreno no TERRAVISION**  
+Inserir uma captura da aplicação em funcionamento, quando disponível.
+
+**Figura 3 – Representação tridimensional do relevo**  
+Inserir uma captura do modelo 3D, quando disponível.
+
+## 8. CONCLUSÃO
+
+O desenvolvimento do TERRAVISION permitiu explorar a relação entre dados geográficos, programação e computação gráfica.
+
+O estudo demonstrou como uma matriz de elevação pode ser utilizada para representar as variações de altura de um terreno e como a seleção de níveis de detalhe pode contribuir para organizar a visualização de grandes áreas geográficas.
+
+Também foi possível compreender a importância das sombras, das cores e dos princípios da Gestalt na interpretação do relevo e na organização de uma interface.
+
+Além da aplicação prática dos conceitos de Python, o projeto proporcionou contato com o processamento de dados geográficos e com os fundamentos da representação tridimensional.
+
+## 9. REFERÊNCIAS
+
+- INPE – Instituto Nacional de Pesquisas Espaciais. TOPODATA: Banco de Dados Geomorfométricos do Brasil.
+- Google Earth. Disponível em: https://earth.google.com/web/
+- Instituto Água e Terra do Paraná. Disponível em: https://www.iat.pr.gov.br/
+- Documentação oficial do Python: https://docs.python.org/3/
+- Documentação do NumPy: https://numpy.org/doc/
+- Documentação do Rasterio: https://rasterio.readthedocs.io/
+
+---
+
+**TERRAVISION | Análise de relevo montanhoso**  
+**Emily Reis de Camargo – 3º D | Desenvolvimento de Sistemas**
